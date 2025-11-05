@@ -2,7 +2,6 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-from scipy import stats
 from dataclasses import dataclass
 
 from src.exception import CustomException
@@ -75,21 +74,3 @@ class DataTransformation:
 
         except Exception as e:
             raise CustomException(e, sys)
-
-# This block allows you to run this script directly for testing
-if __name__ == "__main__":
-    # Add the project root to the Python path
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-    
-    from src.components.data_ingestion import DataIngestion
-
-
-    ingestion_obj = DataIngestion()
-    train_path, test_path = ingestion_obj.initiate_data_ingestion()
-
-
-    transformation_obj = DataTransformation()
-    
-    # This will now correctly receive the new paths
-    cleaned_train_path, cleaned_test_path = transformation_obj.initiate_data_transformation(train_path, test_path)
-    

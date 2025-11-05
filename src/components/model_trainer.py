@@ -12,8 +12,6 @@ from prophet.diagnostics import cross_validation, performance_metrics
 from src.exception import CustomException
 from src.logger import logging
 from src.utils import save_object, get_holidays, mape
-
-# --- NEW: Import the standard logging module ---
 import logging as py_logging 
 
 @dataclass
@@ -39,13 +37,13 @@ class ModelTrainer:
             # Suppress Prophet's stan logs
             warnings.filterwarnings('ignore')
 
-            # --- FIXED: Set log levels to ERROR to hide INFO and WARNINGS ---
+            # Set log levels to ERROR to hide INFO and WARNINGS 
             py_logging.getLogger('cmdstanpy').setLevel(py_logging.ERROR)
             py_logging.getLogger('prophet').setLevel(py_logging.ERROR)
             
-            # --- Get Holidays (Because I don't know which country's data this is, so I am not using it in model training)
-            logging.info("Loading Malaysia holiday data from utils")
-            holidays_df = get_holidays()
+            # Get Holidays (Because I don't know which country's data this is, so I am not using it in model training)
+            #logging.info("Loading Malaysia holiday data from utils")
+            #holidays_df = get_holidays()
 
             # HYPERPARAMETER TUNING WITH CROSS-VALIDATION
             logging.info("Starting hyperparameter tuning with cross-validation")
@@ -76,7 +74,7 @@ class ModelTrainer:
                         changepoint_prior_scale=params['changepoint_prior_scale'],
                         seasonality_prior_scale=params['seasonality_prior_scale'],
                         seasonality_mode=params['seasonality_mode'],
-                        #holidays=holidays_df, # Holidays commented out as in your code
+                        #holidays=holidays_df, 
                         holidays_prior_scale=params['holidays_prior_scale'],
                         daily_seasonality=False,
                         weekly_seasonality=True,
@@ -159,26 +157,3 @@ class ModelTrainer:
 
         except Exception as e:
             raise CustomException(e, sys)
-
-# This block allows you to run this script directly for testing
-if __name__ == "__main__":
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-    
-    from src.components.data_ingestion import DataIngestion
-    from src.components.data_transformation import DataTransformation
-
-    # 1. Run Data Ingestion
-
-    ingestion_obj = DataIngestion()
-    train_path, test_path = ingestion_obj.initiate_data_ingestion()
-
-    # 2. Run Data Transformation
-
-    transformation_obj = DataTransformation()
-    cleaned_train_path, cleaned_test_path = transformation_obj.initiate_data_transformation(train_path, test_path)
-
-    # 3. Run Model Trainer
-
-    model_trainer = ModelTrainer()
-    accuracy, model_path = model_trainer.initiate_model_training(cleaned_train_path, cleaned_test_path)
-    

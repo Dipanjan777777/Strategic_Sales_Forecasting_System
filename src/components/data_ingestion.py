@@ -59,9 +59,3 @@ class DataIngestion:
         except Exception as e:
             logging.info("Exception occurred in the data ingestion method")
             raise CustomException(e, sys)
-
-# This block allows you to run this script directly for testing
-if __name__ == "__main__":
-    obj = DataIngestion()
-    train_path, test_path = obj.initiate_data_ingestion()
-    print(f"Data ingestion complete. Train file at: {train_path}, Test file at: {test_path}")       
