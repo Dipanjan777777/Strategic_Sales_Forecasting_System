@@ -32,10 +32,11 @@ class DataIngestion:
             df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
             ## Aggregate sales by date
             df = df.groupby('date')['quantity_sold'].sum().reset_index()
+            # Renaming columns to 'ds' and 'y' for Prophet
+            df = df.rename(columns={'date': 'ds', 'quantity_sold': 'y'}) 
             logging.info("Basic preprocessing done")
             
             logging.info("Train test split initiated")
-
             # Time series split: Use last 30 days for test
             test_size = 30
             if len(df) <= test_size:

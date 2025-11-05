@@ -7,4 +7,5 @@ seaborn
 ipykernel
 prophet
 pandasql
+dill
 -e .
