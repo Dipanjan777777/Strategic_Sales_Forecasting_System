@@ -77,7 +77,7 @@ This file summarizes the key problems addressed and findings discovered during t
 
 ## ✨ Key Features
 
-### 🎯 Machine Learning Pipeline
+### 🎯 Machine Learning 
 - ✅ **Data Ingestion**: Automated CSV loading and date parsing
 - ✅ **Model Training**: Prophet with optimized parameters
 - ✅ **Cross-Validation**: 3-fold time series validation
@@ -143,142 +143,13 @@ Strategic Sales Forecasting/
 ├── 📂 notebooks/                      # Jupyter notebooks
 │   └── 📓 1.EDA_restaurant_sales_data.ipynb  # EDA & training notebook
 │   └── 📓 model_training_all_restaurent.ipynb # experiments
-│   └── 📓    model_training_by_restaurent_type.ipynb # experiments
+│   └── 📓 model_training_by_restaurent_type.ipynb # experiments
 │   ├── 📂 dataset/                        # Raw data files
 │       └── 📄 restaurant_sales_data.csv   # Historical sales data
 │
 └── 📂 logs/                           # Application logs
     └── 📄 app_*.log                   # Timestamped log files
 ```
-
-### 📌 Key Directories Explained
-
-| Directory | Purpose |
-|-----------|---------|
-| `src/components/` | Core ML pipeline components (ingestion, transformation, training) |
-| `src/pipeline/` | End-to-end pipelines for training and prediction |
-| `artifacts/` | Stores trained models and cleaned datasets |
-| `models/` | Versioned Prophet models with timestamps |
-| `results/` | Forecast outputs in CSV format |
-| `templates/` | Dark-themed HTML files for web interface |
-| `notebooks/` | Jupyter notebooks for EDA and experimentation |
-| `dataset/` | Raw restaurant sales data |
-| `logs/` | Application logs for debugging |
-
----
-
-## 🚀 Installation & Setup
-
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
-- Virtual environment (recommended)
-
-### Step 1: Clone the Repository
-```bash
-# Clone the project
-git clone https://github.com/yourusername/strategic-sales-forecasting.git
-
-# Navigate to project directory
-cd strategic-sales-forecasting
-```
-
-### Step 2: Create Virtual Environment
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
-
-# macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### Step 3: Install Dependencies
-```bash
-# Upgrade pip
-pip install --upgrade pip
-
-# Install all required packages
-pip install -r requirements.txt
-
-```
-
----
-
-## 🎓 How to Train the Model
-
-### Using Training Pipeline 
-```bash
-# Run the complete automated training pipeline
-python -m src.pipeline.train_pipeline
-
-```
-### Verify Training Success
-```bash
-# Windows
-dir artifacts
-dir models
-
-# macOS/Linux
-ls artifacts/
-ls models/
-```
-
-## 🌐 How to Run the Application
-
-### Step 1: Ensure Model is Trained
-```bash
-# Verify model exists
-# Windows
-if exist artifacts\model.pkl (echo Model found!) else (echo Train model first!)
-
-# macOS/Linux
-[ -f artifacts/model.pkl ] && echo "Model found!" || echo "Train model first!"
-```
-
-### Step 2: Start the Flask Application
-```bash
-# Run the Flask app
-python app.py
-```
-
-**Expected Output:**
-```
- * Serving Flask app 'app'
- * Debug mode: on
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://192.168.x.x:5000
-Press CTRL+C to quit
-```
-
-### Step 3: Access the Application
-Open your browser at: **http://localhost:5000**
-
-### Step 4: Use the Application
-
-1. **🏠 Landing Page**
-   - View model information (75.5% accuracy, 180 days max)
-   - See feature highlights
-   - Click "🚀 Get Started"
-
-2. **📊 Prediction Form**
-   - Enter forecast period (1-180 days)
-   - Use quick select: 7 Days, 2 Weeks, 1 Month, 2 Months, 3 Months, 6 Months
-   - Click "🔮 Generate Forecast"
-
-3. **📈 Results Dashboard**
-   - **Summary Cards**: Total sales, average daily, peak/low days
-   - **Forecast Plot**: Historical + future predictions with red forecast line
-   - **Components Plot**: Trend, weekly, and yearly patterns
-   - **Key Insights**: Automated analysis
-
-### Stop the Application
-Press `CTRL + C` in the terminal
-
----
-
 
 ## 📝 Quick Start Commands
 
