@@ -11,8 +11,8 @@ from src.utils import save_object
 
 @dataclass
 class DataTransformationConfig:
-    # We are not saving any CSV files, so this is empty
-    pass
+    cleaned_train_data_path: str = os.path.join('artifacts', 'train_cleaned.csv')
+    cleaned_test_data_path: str = os.path.join('artifacts', 'test_cleaned.csv')
 
 class DataTransformation:
     def __init__(self):
@@ -21,7 +21,7 @@ class DataTransformation:
     def initiate_data_transformation(self, train_path, test_path):
         '''
         This function applies outlier removal to the training data
-        and returns the cleaned train_df and original test_df in memory.
+        and saves the cleaned train_df and original test_df to new files.
         '''
         logging.info("Entered data transformation method")
         try:
@@ -29,7 +29,6 @@ class DataTransformation:
             test_df = pd.read_csv(test_path)
             
             logging.info(f"Read train data ({len(train_df)} rows) and test data ({len(test_df)} rows)")
-
 
             # This is only applied to the training set to improve tuning.
             logging.info("Applying z-score outlier removal to training data")
@@ -44,12 +43,19 @@ class DataTransformation:
 
             train_df_cleaned = df_clean.drop(df_clean.index[outlier_index]).reset_index(drop=True)
             logging.info(f"Remaining training data points: {len(train_df_cleaned)}")
-            logging.info("Data transformation completed.")
 
-            # Return both dataframes
+
+            # Save the cleaned train and original test dataframes to the paths
+            train_df_cleaned.to_csv(self.transformation_config.cleaned_train_data_path, index=False)
+            test_df.to_csv(self.transformation_config.cleaned_test_data_path, index=False)
+
+
+            logging.info("Data transformation completed. Saved cleaned files to artifacts.")
+
+            # Return the paths to the new files
             return (
-                train_df_cleaned,
-                test_df 
+                self.transformation_config.cleaned_train_data_path,
+                self.transformation_config.cleaned_test_data_path, 
             )
 
         except Exception as e:
@@ -63,14 +69,15 @@ if __name__ == "__main__":
     from src.components.data_ingestion import DataIngestion
 
     # First, run data ingestion to get the initial train/test split
+
     ingestion_obj = DataIngestion()
     train_path, test_path = ingestion_obj.initiate_data_ingestion()
 
 
     # Now, run data transformation
-    logging.info("Running Data Transformation...")
+
     transformation_obj = DataTransformation()
     
-    # FIX 3: Pass both paths and accept both returned dataframes
-    train_df, test_df = transformation_obj.initiate_data_transformation(train_path, test_path)
+    # This will now correctly receive the new paths
+    cleaned_train_path, cleaned_test_path = transformation_obj.initiate_data_transformation(train_path, test_path)
     
