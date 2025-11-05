@@ -36,41 +36,44 @@ def mape(actual, pred):
     pred = pred[nonzero_mask]
     
     if len(actual) == 0:
-        return 0.0  # Or np.nan, depending on how you want to handle this
+        return 0.0  
         
     return np.mean(np.abs((actual - pred) / actual)) * 100
 
-def get_singapore_holidays():
+def get_holidays(): 
     '''
-    This function creates and returns the Singapore holiday dataframe
-    for the model trainer to use.
+    This function creates and returns a dataframe of
+    Malaysia (MY) holidays.
     '''
-    logging.info("Preparing Singapore holiday dataframe")
+    logging.info("Preparing MY holiday dataframe")
     try:
-        singapore_holidays_df = pd.DataFrame([])
+        my_holidays_df = pd.DataFrame([])
         
-        # We can hardcode the years or make it dynamic
-        # Let's make it dynamic for the next 3 years
         current_year = datetime.now().year
-        years_range = list(range(current_year - 1, current_year + 3)) # e.g., 2023 to 2026
+        years_range = list(range(current_year - 1, current_year + 3)) 
 
-        logging.info(f"Generating Singapore holidays for years: {years_range}")
-
-        for date_, name in sorted(holidays.SG(years=years_range).items()):
-            singapore_holidays_df = pd.concat([
-                singapore_holidays_df, 
+        logging.info(f"Generating MY holidays for years: {years_range}")
+        
+        # Get Malaysia Holidays
+        for date_, name in sorted(holidays.MY(years=years_range).items()):
+            my_holidays_df = pd.concat([
+                my_holidays_df, 
                 pd.DataFrame({
                     'ds': date_, 
-                    'holiday': 'SG-Holiday',
+                    'holiday': 'MY-Holiday',
                     'lower_window': -2,
                     'upper_window': 1
                 }, index=[0])
             ], ignore_index=True)
 
-        singapore_holidays_df['ds'] = pd.to_datetime(singapore_holidays_df['ds'])
-        logging.info(f"Total Singapore holidays loaded: {len(singapore_holidays_df)}")
+        my_holidays_df['ds'] = pd.to_datetime(my_holidays_df['ds'])
         
-        return singapore_holidays_df
+        # Remove any duplicate dates
+        my_holidays_df = my_holidays_df.drop_duplicates(subset=['ds'])
+        
+        logging.info(f"Total Malaysia holidays loaded: {len(my_holidays_df)}")
+        
+        return my_holidays_df
 
     except Exception as e:
         raise CustomException(e, sys)
