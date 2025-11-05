@@ -9,4 +9,5 @@ prophet
 pandasql
 dill
 plotly
+flask
 -e .

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Forecasting - Predict Future Sales</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 75, 145, 0.2) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .prediction-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .form-group {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .input-wrapper input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper input[type="number"]:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+        }
+
+        .quick-select {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            padding: 10px 20px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid rgba(59, 130, 246, 0.4);
+            border-radius: 10px;
+            color: #60a5fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        .quick-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: #60a5fa;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .submit-btn {
+            padding: 15px 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .summary-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #60a5fa;
+        }
+
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .subtitle {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3b82f6;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #60a5fa;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #60a5fa;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .prophet-plot {
+            width: 100%;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .plot-description {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .plot-description h4 {
+            color: #60a5fa;
+            margin-bottom: 8px;
+        }
+        
+        .plot-description p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Sales Forecasting System</h1>
+            <p>Predict future sales with AI-powered forecasting (Up to 6 months)</p>
+        </div>
+
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <!-- Prediction Form -->
+        <div class="card">
+            {% if error %}
+            <div class="error-message">
+                <strong>Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+
+            <form class="prediction-form" method="post" id="predictionForm">
+                <div class="form-group">
+                    <label for="periods">How many days would you like to forecast? (Max: 180 days / 6 months)</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="number" 
+                            id="periods" 
+                            name="periods" 
+                            min="1" 
+                            max="180" 
+                            value="30" 
+                            required
+                            placeholder="Enter number of days (1-180)"
+                        >
+                    </div>
+                    <div class="quick-select">
+                        <button type="button" class="quick-btn" onclick="setDays(7)">7 Days</button>
+                        <button type="button" class="quick-btn" onclick="setDays(14)">2 Weeks</button>
+                        <button type="button" class="quick-btn" onclick="setDays(30)">1 Month</button>
+                        <button type="button" class="quick-btn" onclick="setDays(60)">2 Months</button>
+                        <button type="button" class="quick-btn" onclick="setDays(90)">3 Months</button>
+                        <button type="button" class="quick-btn" onclick="setDays(180)">6 Months</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">🔮 Generate Forecast</button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: #667eea; font-weight: 600;">Generating forecast...</p>
+            </div>
+        </div>
+
+        {% if results %}
+        <!-- Summary Statistics -->
+        <div class="card">
+            <h2 class="section-title">📈 Forecast Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Total Predicted Sales</h3>
+                    <div class="value">{{ "{:,}".format(summary.total_predicted) }}</div>
+                    <div class="subtitle">units over {{ periods }} days</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Average Daily Sales</h3>
+                    <div class="value">{{ "{:,}".format(summary.average_daily) }}</div>
+                    <div class="subtitle">± {{ "{:,}".format(summary.std_daily) }} std dev</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Peak Day</h3>
+                    <div class="value">{{ "{:,}".format(summary.max_daily) }}</div>
+                    <div class="subtitle">on {{ summary.peak_date }}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Lowest Day</h3>
+                    <div class="value">{{ "{:,}".format(summary.min_daily) }}</div>
+                    <div class="subtitle">on {{ summary.low_date }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prophet Forecast Plot (Main) -->
+        <div class="card">
+            <h2 class="section-title">📊 Sales Forecast - Historical + Future</h2>
+            <div class="plot-description">
+                <h4>🔍 What This Shows:</h4>
+                <p>
+                    This plot displays the complete forecast including historical data (black dots), 
+                    the predicted trend (blue line), and confidence intervals (light blue shaded area). 
+                    The red dashed line marks where future predictions begin.
+                </p>
+            </div>
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ prophet_forecast_img }}" 
+                     alt="Prophet Forecast Plot" 
+                     class="prophet-plot">
+            </div>
+        </div>
+
+        <!-- Prophet Components Plot -->
+        <div class="card">
+            <h2 class="section-title">📉 Forecast Components Analysis</h2>
+            <div class="plot-description">
+                <h4>🔍 What This Shows:</h4>
+                <p>
+                    <strong>Trend:</strong> Overall direction of sales over time<br>
+                    <strong>Weekly:</strong> Day-of-week patterns (which days have higher/lower sales)<br>
+                    <strong>Yearly:</strong> Seasonal patterns throughout the year
+                </p>
+            </div>
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ prophet_components_img }}" 
+                     alt="Prophet Components Plot" 
+                     class="prophet-plot">
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="card">
+            <h2 class="section-title">💡 Key Insights</h2>
+            <div style="padding: 20px; background: #f8f9ff; border-radius: 10px;">
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                        <strong>📈 Total Forecast:</strong> {{ "{:,}".format(summary.total_predicted) }} units expected over {{ periods }} days
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                        <strong>📊 Daily Average:</strong> {{ "{:,}".format(summary.average_daily) }} units per day (±{{ "{:,}".format(summary.confidence_avg) }} units confidence)
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                        <strong>🔝 Peak Performance:</strong> Highest sales expected on {{ summary.peak_date }} with {{ "{:,}".format(summary.max_daily) }} units
+                    </li>
+                    <li style="padding: 10px 0;">
+                        <strong>📉 Low Point:</strong> Lowest sales expected on {{ summary.low_date }} with {{ "{:,}".format(summary.min_daily) }} units
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function setDays(days) {
+            document.getElementById('periods').value = days;
+        }
+
+        // Show loading spinner on form submit
+        document.getElementById('predictionForm').addEventListener('submit', function() {
+            document.querySelector('.prediction-form').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
