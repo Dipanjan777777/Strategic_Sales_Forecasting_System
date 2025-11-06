@@ -16,14 +16,14 @@ class TrainPipeline:
         try:
             logging.info("Starting the training pipeline...")
 
-            # Step 1: Data Ingestion
+            # Data Ingestion
             train_path, test_path = self.data_ingestion.initiate_data_ingestion()
 
 
-            # Step 2: Data Transformation
+            # Data Transformation
             cleaned_train_path, cleaned_test_path = self.data_transformation.initiate_data_transformation(train_path, test_path)
 
-            # Step 3: Model Training
+            # Model Training
             accuracy, model_path = self.model_trainer.initiate_model_training(cleaned_train_path, cleaned_test_path)
 
             logging.info("Training pipeline finished successfully.")

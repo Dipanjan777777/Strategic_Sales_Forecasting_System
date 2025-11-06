@@ -40,7 +40,7 @@ def mape(actual, pred):
         
     return np.mean(np.abs((actual - pred) / actual)) * 100
 
-def get_holidays(): 
+def get_holidays(): ## as we dont know which custom holidays to add, we will create a function for future use
     '''
     This function creates and returns a dataframe of
     Malaysia (MY) holidays.

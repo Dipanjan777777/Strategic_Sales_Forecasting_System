@@ -29,7 +29,7 @@ def fig_to_base64(fig):
     plt.close(fig)
     return img_str
 
-# --- Route for a home page ---
+
 @app.route('/')
 def index():
     return render_template('index.html') 
@@ -40,9 +40,9 @@ def predict_datapoint():
         # Just render the page with the input form
         return render_template('home.html')
     else:
-        # --- POST Request: Run the prediction ---
+
         try:
-            # 1. Get the number of days from the form
+            # Get the number of days from the form
             periods_to_forecast = int(request.form.get('periods'))
             
             # Validate input - UPDATED TO 180 DAYS (6 MONTHS)
@@ -52,29 +52,28 @@ def predict_datapoint():
                     error="Please enter a value between 1 and 180 days (6 months maximum)."
                 )
             
-            # 2. Create CustomData object
+            # Create CustomData object
             data = CustomData(periods=periods_to_forecast)
 
-            # 3. Get the data as a dataframe
+            # Get the data as a dataframe
             pred_df = data.get_data_as_data_frame()
             logging.info(f"Prediction requested for {periods_to_forecast} periods.")
 
-            # 4. Initialize the prediction pipeline
+            # Initialize the prediction pipeline
             predict_pipeline = PredictPipeline()
             
-            # 5. Get the forecast dataframe (full forecast with historical)
+            # Get the forecast dataframe (full forecast with historical)
             forecast_df = predict_pipeline.predict(pred_df)
             
-            # 6. Get the Prophet model for plotting
+            # Get the Prophet model for plotting
             model = predict_pipeline.get_model()
             
             logging.info("Prediction successful.")
 
-            # 7. Separate historical and forecast data
+            # Separate historical and forecast data
             forecast_data = forecast_df.tail(periods_to_forecast).copy()
             
-            # 8. Generate Prophet plots
-            
+            # Generate Prophet plots          
             # Plot 1: Main forecast plot with historical data
             fig1 = model.plot(forecast_df, figsize=(14, 6))
             ax1 = fig1.gca()
@@ -94,7 +93,7 @@ def predict_datapoint():
             fig2 = model.plot_components(forecast_df, figsize=(14, 10))
             prophet_components_img = fig_to_base64(fig2)
             
-            # 9. Calculate summary statistics
+            # Calculate summary statistics
             forecast_summary = {
                 'total_predicted': int(forecast_data['yhat'].sum()),
                 'average_daily': int(forecast_data['yhat'].mean()),
@@ -106,7 +105,7 @@ def predict_datapoint():
                 'confidence_avg': int((forecast_data['yhat_upper'] - forecast_data['yhat_lower']).mean() / 2)
             }
             
-            # 10. Format table data (keep for potential future use, but won't display)
+            # Format table data (keep for potential future use, but won't display)
             forecast_table = forecast_data.copy()
             forecast_table['ds'] = forecast_table['ds'].dt.strftime('%Y-%m-%d')
             forecast_table['yhat'] = forecast_table['yhat'].round(0).astype(int)
@@ -115,7 +114,7 @@ def predict_datapoint():
             
             results_list = forecast_table.to_dict(orient='records')
 
-            # 11. Render template with all data
+            # Render template with all data
             return render_template(
                 'home.html', 
                 results=results_list, 

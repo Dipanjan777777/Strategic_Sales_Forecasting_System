@@ -14,7 +14,7 @@ def get_requirements(file_path: str) -> list[str]:
     return requirements
 
 setup(
-   name='Strategic-Sales-Forecasting-Full-Spectrum-Sales---Demand-Forecasting',
+   name='Strategic-Sales-Forecasting',
    version='0.0.1',
    description='A useful module',
    author='Dipanjan Santra',

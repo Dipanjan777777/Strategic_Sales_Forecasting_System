@@ -40,10 +40,10 @@ class PredictPipeline:
             
             logging.info(f"Making future dataframe for {periods} periods.")
             
-            # 1. Create future dataframe
+            # Create future dataframe
             future = self.model.make_future_dataframe(periods=periods)
             
-            # 2. Merge regressor columns into the future dataframe
+            # Merge regressor columns into the future dataframe
             # This gets all the *historical* values for the regressors
             future_with_regressors = pd.merge(
                 future,
@@ -52,11 +52,11 @@ class PredictPipeline:
                 how='left'
             )
             
-            # 3. Fill future regressor values (for the new 'periods' days) with 0
+            # Fill future regressor values (for the new 'periods' days) with 0
             # This assumes no promotions, events, etc. for the future forecast
             future_with_regressors[self.regressor_cols] = future_with_regressors[self.regressor_cols].fillna(0)
 
-            # 4. Predict
+            # Predict
             logging.info("Generating forecast...")
             forecast = self.model.predict(future_with_regressors)
             
@@ -80,7 +80,7 @@ class CustomData:
 
     def get_data_as_data_frame(self):
         try:
-            # Create a dataframe with the 'periods' feature
+
             custom_data_input_dict = {
                 "periods": [self.periods]
             }
@@ -90,20 +90,3 @@ class CustomData:
         except Exception as e:
             raise CustomException(e, sys)
 
-# This block allows you to run this script directly for testing
-if __name__ == "__main__":
-    logging.info("Starting prediction pipeline test...")
-    
-    # 1. Create custom data: We want to predict the next 30 days
-    custom_data = CustomData(periods=30)
-    
-    # 2. Convert to dataframe
-    features_df = custom_data.get_data_as_data_frame()
-    
-    # 3. Initialize pipeline and predict
-    pipeline = PredictPipeline()
-    forecast = pipeline.predict(features_df)
-    
-    print("\n--- 30-Day Forecast ---")
-    print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].to_string())
-    logging.info("Prediction pipeline test complete.")
